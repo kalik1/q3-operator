@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '4'
+  labels:
+    app: quake-operator
+    app.kubernetes.io/component: quake-operator
+    app.kubernetes.io/instance: quake-operator
+  name: quake-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: quake-operator
+  template:
+    metadata:
+      labels:
+        deployment: quake-operator
+    spec:
+      containers:
+        - env:
+            - name: DEV_MODE
+              value: 'false'
+          image: ghcr.io/kainlite/quake-operator:master
+          imagePullPolicy: IfNotPresent
+          name: quake-operator
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      serviceAccount: quake-operator

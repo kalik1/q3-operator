@@ -1,0 +1,26 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 30001
+    hostPort: 30001
+    protocol: UDP
+  - containerPort: 30002
+    hostPort: 30002
+    protocol: UDP
+  - containerPort: 30003
+    hostPort: 30003
+    protocol: UDP
+  - containerPort: 30004
+    hostPort: 30004
+    protocol: UDP
+  - containerPort: 30005
+    hostPort: 30005
+    protocol: UDP
