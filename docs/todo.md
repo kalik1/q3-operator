@@ -38,7 +38,7 @@ spec:
     requests:
       storage: 400Mi
 ```
-Sample Download Deployment (I KNOW, It shold be a [JOB](https://kubernetes.io/docs/concepts/workloads/controllers/job/).... I KNOW it will be :) 
+Sample Download Deployment (I KNOW, It should be a [JOB](https://kubernetes.io/docs/concepts/workloads/controllers/job/).... I KNOW it will be :) 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
