@@ -2,6 +2,8 @@
 # Quake3 Kubernetes/Openshift Operator with NestJS
 
 ## Disclaimer
+The areas you see in the picture are not randomly generated or placed. They are meticulously crafted and positioned to show a specific purpose.
+
 ![me.png](docs%2Fme.png)
 ## Description
 Welcome to my wild adventure! 🚀 This is the Quake3 Kubernetes/Openshift Operator, a MARVELous (🤣) creation I've forged with NestJS. My mission? To show that developing Kubernetes operators in TypeScript isn't just a dream—it's a reality!
