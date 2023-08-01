@@ -1,31 +1,14 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Quake3 Kubernetes/Openshift Operator with NestJS
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
+## Disclaimer
+![me.png](docs%2Fme.png)
 ## Description
+Welcome to my wild adventure! 🚀 This is the Quake3 Kubernetes/Openshift Operator, a MARVELous (🤣) creation I've forged with NestJS. My mission? To show that developing Kubernetes operators in TypeScript isn't just a dream—it's a reality!
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This operator is still a bit of a beautiful mess. It's my unfinished masterpiece with a long to-do list. But don't let that stop you! I'm adding an elegant Angular frontend, some handy REST APIs, and working to make it look fantastic. Inspired by the Minio operator, this is only the beginning!
 
+So, join me, test it with Kubernetes in Docker (kind), and let's build something unforgettable.
 ## Installation
 
 ```bash
@@ -35,17 +18,23 @@ $ pnpm install
 ## Running the app
 
 ```bash
-# development
+# For the daredevils (development mode)
 $ pnpm run start
 
-# watch mode
+# For the watchful eyes (watch mode)
 $ pnpm run start:dev
 
-# production mode
+# For the serious ones (production mode)
 $ pnpm run start:prod
 ```
 
 ## Test
+
+Who needs test? 
+
+![tests.jpg](docs%2Ftests.jpg)
+
+ONE DAY: 
 
 ```bash
 # unit tests
@@ -57,17 +46,17 @@ $ pnpm run test:e2e
 # test coverage
 $ pnpm run test:cov
 ```
+## Dreaming Big: The OperatorHub
+
+I'm not just building this for fun (well, maybe a little). My dream is to publish this operator on OperatorHub, making it accessible to the whole Kubernetes community! 🎉 I'm working hard (really?) to make that dream come true, and I'd love for you to be a part of it. Stay tuned (clicking the star is free, but remember to remove notification, GH spams so much)!
 
 ## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
+Building something this awesome is a big task. If you're interested in contributing, finding bugs, or just cheering me on, I'd love to have you! Feel free to fork, create issues, or reach out. Your support means the world to me.
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [kalik1](https://github.com/kalik1)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This is [MIT licensed](LICENSE).
