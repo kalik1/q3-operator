@@ -117,6 +117,8 @@ This work is in progress, and I am committed to implementing this functionality 
 
 ## To-Do List
 
+Short-term todos [🥓 HERE](docs%2Ftodo.md)
+
 The Quake3 operator is in active development, and there's still a lot to be done. Here's a sneak peek at what's on the horizon:
 - [ ] API documentation & validation with swagger
 - [ ] Refactor folder structure
