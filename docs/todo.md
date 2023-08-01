@@ -65,7 +65,7 @@ spec:
       volumes:
         - name: datapack-volume
           persistentVolumeClaim:
-            claimName: datapack-pvc
+            claimName: datapack-<name>-pvc
 ```
 Sample Server Deployment
 ```yaml
