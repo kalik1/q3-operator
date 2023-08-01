@@ -1,5 +1,7 @@
+import { API_VERSION } from '../../../const';
+
 const kubeQ3apiDefaultServer = {
-  apiVersion: 'q3.magesgate.com/v1',
+  apiVersion: `q3.magesgate.com/${API_VERSION}`,
   kind: 'Server',
   metadata: {
     name: 'new-server',
@@ -10,8 +12,8 @@ const kubeQ3apiDefaultServer = {
     },
   },
   status: {
-    state: 'new', // sostituisci con il tuo stato
-    message: 'Created', // sostituisci con il tuo messaggio
+    state: 'new',
+    message: 'Created',
   },
 };
 export { kubeQ3apiDefaultServer };

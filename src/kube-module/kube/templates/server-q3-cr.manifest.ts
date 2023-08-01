@@ -1,15 +1,17 @@
+import { API_VERSION } from '../../../const';
+
 function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
   return {
     apiVersion: 'apiextensions.k8s.io/v1',
     kind: 'CustomResourceDefinition',
     metadata: {
-      name: data.name, // sostituisci con il tuo valore
+      name: data.name,
     },
     spec: {
-      group: data.group, // sostituisci con il tuo valore
+      group: data.group,
       versions: [
         {
-          name: 'v1',
+          name: API_VERSION,
           served: true,
           storage: true,
           schema: {
@@ -74,11 +76,11 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
           },
         },
       ],
-      scope: 'Namespaced', // o 'Cluster' se la tua risorsa non è legata a un namespace specifico
+      scope: 'Namespaced',
       names: {
-        plural: 'servers', // il plurale del tuo 'kind'
-        singular: 'server', // il singolare del tuo 'kind'
-        kind: 'Server', // la versione CamelCase del tuo 'kind'
+        plural: 'servers',
+        singular: 'server',
+        kind: 'Server',
       },
     },
   };

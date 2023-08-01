@@ -13,9 +13,7 @@ import { CreateQ3ServerDto } from '../../q3-server/dto/create-q3-server.dto';
 import { kubeQ3apiDefaultServer } from './templates/kube-q3api-default.server';
 import { q3ServerCrDefinitionManifest } from './templates/server-q3-cr.manifest';
 import * as process from 'process';
-import * as path from 'path';
-import { baserServerConfig } from './templates/server.cfg';
-import { response } from 'express';
+import { API_VERSION } from '../../const';
 
 @Injectable()
 export class KubeService {
@@ -46,7 +44,7 @@ export class KubeService {
     try {
       return this.q3K8sApi.patchNamespacedCustomObjectStatus(
         this.CR_GROUP,
-        'v1',
+        API_VERSION,
         this.namespace,
         'servers',
         name,
@@ -68,7 +66,7 @@ export class KubeService {
   ) {
     while (!this.initedCr) await new Promise((r) => setTimeout(r, 1000));
     this.watch.watch(
-      `/apis/${this.CR_GROUP}/v1/namespaces/${this.namespace}/servers`,
+      `/apis/${this.CR_GROUP}/${API_VERSION}/namespaces/${this.namespace}/servers`,
       {},
       // funzione di callback per le modifiche
       (type, obj) => {
@@ -107,7 +105,7 @@ export class KubeService {
   async getServers(): Promise<Record<string, any>> {
     const servers = await this.q3K8sApi.listNamespacedCustomObject(
       this.CR_GROUP,
-      'v1',
+      API_VERSION,
       this.namespace,
       'servers',
     );
@@ -116,7 +114,7 @@ export class KubeService {
   async getServer(name: string): Promise<Record<string, any>> {
     const server = await this.q3K8sApi.getNamespacedCustomObject(
       this.CR_GROUP,
-      'v1',
+      API_VERSION,
       this.namespace,
       'servers',
       name,
@@ -134,7 +132,7 @@ export class KubeService {
     try {
       newServer = await this.q3K8sApi.createNamespacedCustomObject(
         this.CR_GROUP,
-        'v1',
+        API_VERSION,
         this.namespace,
         'servers',
         kubeQ3apiDefaultServer,
@@ -153,7 +151,7 @@ export class KubeService {
     try {
       oldServer = await this.q3K8sApi.deleteNamespacedCustomObject(
         this.CR_GROUP,
-        'v1',
+        API_VERSION,
         this.namespace,
         'servers',
         serverName,

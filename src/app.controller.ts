@@ -1,17 +1,15 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Redirect } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiExcludeController } from '@nestjs/swagger/dist/decorators/api-exclude-controller.decorator';
 
 @Controller()
+@ApiExcludeController()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Get('/ciuao')
-  getCiao(): string {
-    return this.appService.getHello();
+  @Redirect('/api')
+  getHello(): void {
+    return;
   }
 }

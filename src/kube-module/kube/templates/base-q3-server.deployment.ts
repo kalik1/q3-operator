@@ -1,6 +1,6 @@
 function baseQ3ServerDeployment(name: string, o: { confMapName: string }) {
   return {
-    apiVersion: 'apps/v1',
+    apiVersion: `apps/v1`,
     kind: 'Deployment',
     metadata: {
       name: `${name}`, // nome unico per ogni deployment
@@ -15,13 +15,13 @@ function baseQ3ServerDeployment(name: string, o: { confMapName: string }) {
       template: {
         metadata: {
           labels: {
-            app: `${name}`, // etichetta unica per ogni pod
+            app: `${name}`,
           },
         },
         spec: {
           volumes: [
             {
-              name: 'datapack-data', // il nome del volume che conterrà il file scaricato
+              name: 'datapack-data',
               emptyDir: {},
             },
             {
@@ -34,16 +34,16 @@ function baseQ3ServerDeployment(name: string, o: { confMapName: string }) {
           initContainers: [
             {
               name: 'download-file',
-              image: 'appropriate/curl', // un'immagine che contiene curl o un altro strumento di download
+              image: 'appropriate/curl',
               command: [
                 'sh',
                 '-c',
-                'curl -o /datapack/pak0.pk3 https://raw.githubusercontent.com/nrempel/q3-server/master/baseq3/pak0.pk3', // sostituisci con il tuo URL del file
+                'curl -o /datapack/pak0.pk3 https://raw.githubusercontent.com/nrempel/q3-server/master/baseq3/pak0.pk3',
               ],
               volumeMounts: [
                 {
-                  name: 'datapack-data', // corrisponde al nome del volume definito sopra
-                  mountPath: '/datapack', // il percorso in cui il volume sarà montato nell'initContainer
+                  name: 'datapack-data',
+                  mountPath: '/datapack',
                 },
               ],
             },
@@ -51,17 +51,17 @@ function baseQ3ServerDeployment(name: string, o: { confMapName: string }) {
           containers: [
             {
               name: 'quake3-server',
-              image: 'inanimate/quake3:latest', // sostituisci con il nome della tua immagine Docker
+              image: 'inanimate/quake3:latest',
               ports: [
                 {
-                  containerPort: 27960, // porta su cui il server Quake3 accetta connessioni
-                  protocol: 'UDP', // porta su cui il server Quake3 accetta connessioni
+                  containerPort: 27960,
+                  protocol: 'UDP',
                 },
               ],
               volumeMounts: [
                 {
-                  name: 'datapack-data', // corrisponde al nome del volume definito sopra
-                  mountPath: '/usr/share/games/quake3/baseq3/pak0.pk3', // il percorso in cui il volume sarà montato nel container principale
+                  name: 'datapack-data',
+                  mountPath: '/usr/share/games/quake3/baseq3/pak0.pk3',
                   subPath: 'pak0.pk3',
                 },
                 {
