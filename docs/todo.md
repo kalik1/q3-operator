@@ -1,7 +1,7 @@
 # TODOS
 ## Get File and store in PVC One time only
 ## WHY
-I want to download once the volume. I assume the cluster could not have Read-write-many Class storages, but only Read-write-once
+I want to download once the datapack in a PVC. I assume the cluster could not have Read-write-many Class storages, but only Read-write-once
 
 This operation must be done once per datapack. Are datapacks stored with server-type ConfigMaps?? 
 ### Task 1: Create a Persistent Volume Claim (PVC)
