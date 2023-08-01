@@ -10,7 +10,7 @@ Welcome to my wild adventure! 🚀 This is the Quake3 Kubernetes/Openshift Opera
 
 This operator is still a bit of a beautiful mess. It's my unfinished masterpiece with a long to-do list. But don't let that stop you! I'm adding an elegant Angular frontend, some handy REST APIs, and working to make it look fantastic. Inspired by the Minio operator, this is only the beginning!
 
-So, join me, test it with Kubernetes in Docker (kind), and let's build something unforgettable.
+So, if you are cary enough, join me, test it with Kubernetes in Docker (kind).
 ## Installation
 
 ```bash
