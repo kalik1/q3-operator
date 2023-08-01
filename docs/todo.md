@@ -67,7 +67,7 @@ spec:
           persistentVolumeClaim:
             claimName: datapack-<name>-pvc
 ```
-Sample Server Deployment
+Sample Server Deployment (General IDEA💡: DeploymentConfig when detected Openshift?)
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
