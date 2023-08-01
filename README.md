@@ -29,6 +29,20 @@ $ pnpm run start:dev
 # For the serious ones (production mode)
 $ pnpm run start:prod
 ```
+Wanna test it with Kubernetes in Docker (kind)? Check out these extra commands:
+
+```bash
+# Create a new Kubernetes cluster with the specific configuration
+$ pnpm run start:kind
+
+# Create a new namespace for the q3-operator
+$ pnpm run start:kind:namespace
+
+# Delete the Kubernetes cluster
+$ pnpm run stop:kind
+
+```
+These kind commands are your key to building and testing within a local Kubernetes environment. They'll help you set up a cluster, create a namespace for your q3-operator, and tear down the cluster when you're done. Enjoy the ride!
 
 ## Test
 
@@ -48,9 +62,18 @@ $ pnpm run test:e2e
 # test coverage
 $ pnpm run test:cov
 ```
-## Dreaming Big: The OperatorHub
+## Dreaming Big: The OperatorHub 😴
 
 I'm not just building this for fun (well, maybe a little). My dream is to publish this operator on OperatorHub, making it accessible to the whole Kubernetes community! 🎉 I'm working hard (really?) to make that dream come true, and I'd love for you to be a part of it. Stay tuned (clicking the star is free, but remember to remove notification, GH spams so much)!
+
+## Running Smooth on Windows, Linux, and Mac
+You know what's great about this operator? It doesn't play favorites. Whether you're a Windows fan, a Linux lover, or a Mac enthusiast, I've tested this project on all three, and it runs smoothly every time. No fuss, no drama.
+
+* Windows? It's on board and running well.
+* Linux? Feels right at home.
+* Mac? It fits like a glove.
+* 
+So whatever your preferred environment is, rest easy. This operator is ready to roll right out of the box. Give it a spin and see for yourself!
 
 ## Support
 
