@@ -6,7 +6,7 @@ animate_sword() {
     printf -- '-|'"${BLADE}"'==> '
     BLADE="${BLADE}="
     sleep 0.5
-    printf "\r" # Move the cursor to the beginning of the line to overwrite the sword
+    printf "\r" # Move the cursor to the beginning of the line to overwrite the sword! Cheers windows \rn\nrn\n\rn\rn\ \nr\nrn\rn\rn\rn CR LF are 2 SIMBOLS!
   done
 }
 
@@ -34,7 +34,7 @@ BASE64_TOKEN=$(pnpm run k8s:get-admin-user-token | tail -n 1)
 echo "🌐 Starting the k8s proxy. A blade to cut through the web!"
 execute_command sleep 5
 echo "http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login"
-echo "🍕 Now eat pizza or Login with this Token"
+echo "🍕 Now eat pizza or Login with this Token (you can take your pizza slice in token.txt)"
 echo $BASE64_TOKEN
 echo $BASE64_TOKEN > token.txt
 pnpm run k8s:proxy | tail -f

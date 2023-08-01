@@ -31,6 +31,16 @@ $ pnpm install
 
 ## Running the app
 
+TL;DR? 
+```bash
+# TAKE THE BLUE PILL!
+$ pnpm run i-am-lazy:take-blue-pill
+# For the watchful eyes (watch mode)
+$ pnpm run start:dev
+```
+
+For Developers
+
 ```bash
 # For the daredevils (development mode)
 $ pnpm run start
@@ -119,7 +129,6 @@ The Quake3 operator is in active development, and there's still a lot to be done
 - [ ] ~~Find very rich founders - NO WAY~~
 
 Your ideas, contributions, and feedback are always welcome. Together, we can make this operator something truly special!
-
 
 ## Running Smooth on Windows, Linux, and Mac
 You know what's great about this operator? It doesn't play favorites. Whether you're a Windows fan, a Linux lover, or a Mac enthusiast, I've tested this project on all three, and it runs smoothly every time. No fuss, no drama.
