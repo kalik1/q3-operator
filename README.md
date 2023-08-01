@@ -64,7 +64,7 @@ $ pnpm run test:cov
 ```
 ## Dreaming Big: The OperatorHub 😴
 
-I'm not just building this for fun (well, maybe a little). My dream is to publish this operator on OperatorHub, making it accessible to the whole Kubernetes community! 🎉 I'm working hard (really?) to make that dream come true, and I'd love for you to be a part of it. Stay tuned (clicking the star is free, but remember to remove notification, GH spams so much)!
+I'm not just building this for fun (well, maybe a little). My dream is to publish this operator on OperatorHub, making it accessible to the whole Kubernetes community! 🎉 I'm working hard (really?) to make that dream come true, and I'd love if someone crazy takes part of it. Stay tuned (clicking the star is free, but remember to remove notification, GH spams so much)!
 
 ## Running Smooth on Windows, Linux, and Mac
 You know what's great about this operator? It doesn't play favorites. Whether you're a Windows fan, a Linux lover, or a Mac enthusiast, I've tested this project on all three, and it runs smoothly every time. No fuss, no drama.
