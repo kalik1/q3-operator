@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateQ3ServerDto } from './dto/create-q3-server.dto';
 import { UpdateQ3ServerDto } from './dto/update-q3-server.dto';
-import { KubeService } from '../kube-module/kube/kube.service';
+import { KubeService } from '../../kube-module/kube/kube.service';
 
 @Injectable()
 export class Q3ServerService {

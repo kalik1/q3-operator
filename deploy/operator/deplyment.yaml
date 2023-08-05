@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: q3-operator
+  namespace: quake3-system
+  labels:
+    operator: q3-operator
+spec:
+  selector:
+    matchLabels:
+      operator: q3-operator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        operator: q3-operator
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: operator
+          image: ghcr.io/kalik1/q3-operator:latest
+          ports:
+            - name: metrics
+              containerPort: 3000
+              protocol: TCP
+            - name: health
+              containerPort: 3000
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+      serviceAccountName: q3-operator
+      terminationGracePeriodSeconds: 10

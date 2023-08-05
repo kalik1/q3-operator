@@ -1,9 +1,9 @@
 const baserServerConfig = `// general server info
 seta sv_hostname "Q3A TEN FIFTY"      // name that appears in server list
-seta g_motd "Privet, Ded!"      // message that appears when connecting
+seta g_motd "K8s / OCP RuleZ B1TcH1!"      // message that appears when connecting
 seta sv_maxclients 16           // max number of clients than can connect
 seta sv_pure 1                  // pure server, no altered pak files
-seta g_quadfactor 4             // quad damage strength (3 is normal)
+seta g_quadfactor 3             // quad damage strength (3 is normal)
 seta g_friendlyFire 1           // friendly fire motherfucker
 
 // free for all

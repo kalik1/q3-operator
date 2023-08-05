@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Q3ServerService } from './q3-server.service';
 import { Q3ServerController } from './q3-server.controller';
-import { KubeModule } from '../kube-module/kube.module';
+import { KubeModule } from '../../kube-module/kube.module';
 
 @Module({
   imports: [KubeModule],

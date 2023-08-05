@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: q3-operator-metrics-monitor
+  namespace: quake3-system
+  labels:
+    operator: q3-operator
+spec:
+  endpoints:
+    - path: /metrics
+      port: metrics
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: q3-operator-metrics-service
+  namespace: quake3-system
+  labels:
+    operator: q3-operator
+spec:
+  ports:
+    - name: metrics
+      port: 3000
+      protocol: TCP
+      targetPort: metrics
+  selector:
+    operator: q3-operator

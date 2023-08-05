@@ -6,11 +6,20 @@ import { baseQ3ServerService } from './kube/templates/base-q3-server.service';
 import * as process from 'process';
 import * as Q3RCon from 'quake3-rcon';
 import { baserServerConfig } from './kube/templates/server.cfg';
+import { Q3Server } from '../api/q3-server/entities/q3-server.entity';
+import { ModPacks } from './kube/templates/game-modes.enums';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { baseQ3ServerPvc } from './kube/templates/base-q3-server.pvc';
+import { baseQ3ServerPakDownloadJob } from './kube/templates/base-q3-server-pak-download.job';
 
 @Injectable()
 export class ReconcilierService {
   logger = new Logger('Reconcilier');
-  constructor(private readonly kubeService: KubeService) {
+  constructor(
+    private readonly kubeService: KubeService,
+    private readonly httpService: HttpService,
+  ) {
     this.kubeService.watcher(this, this.watcher).catch(console.error);
     //this.getServersInfo();
   }
@@ -58,7 +67,7 @@ export class ReconcilierService {
       });
     console.log(servers.map((s) => s.status));
   }
-  async watcher(type: string, obj: Record<string, any>) {
+  async watcher(type: string, obj: Q3Server) {
     const name = obj.metadata.name;
     const confMapName = 'quake3-server-' + name;
     const serviceAppName = 'quake3-server-' + obj.metadata.name;
@@ -120,7 +129,7 @@ export class ReconcilierService {
   }
 
   private async reconciliateExisting(
-    obj: Record<string, any>,
+    obj: Q3Server,
     deploymentName: string,
     confMapName: string,
     serviceAppName: string,
@@ -138,6 +147,35 @@ export class ReconcilierService {
         console.error,
       );
     }
+
+    const mod = obj.spec.q3.mod;
+    await Promise.all(
+      ModPacks[mod].map(async (mp) => {
+        const mapPvc = await this.kubeService.getPvc(mp.name);
+        if (!mapPvc) {
+          const a = await firstValueFrom(this.httpService.head(mp.uri));
+          const pvcMinSizeMib = Math.ceil(
+            parseInt(
+              a.headers['content-length'] ||
+                a.headers['Content-Length'] ||
+                '10000000',
+            ) /
+              1024 /
+              1024 +
+              10,
+          );
+          console.log(pvcMinSizeMib);
+          await this.kubeService.createPvc(
+            baseQ3ServerPvc(mp.name, pvcMinSizeMib),
+          );
+          const jobName = 'download-' + mp.name + '-' + Date.now() + '-job';
+          await this.kubeService.createJob(
+            baseQ3ServerPakDownloadJob(jobName, mp.name, mp),
+          );
+          await this.kubeService.waitForJobDone(jobName);
+        }
+      }),
+    );
 
     const baseQ3Deplyment = baseQ3ServerDeployment(deploymentName, {
       confMapName,
@@ -211,7 +249,6 @@ export class ReconcilierService {
           },
         },
       ]);
-      // console.log(e);
     } catch (e) {
       console.error(e);
     }

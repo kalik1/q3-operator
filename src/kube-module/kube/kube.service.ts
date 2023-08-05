@@ -1,19 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   AppsV1Api,
+  BatchV1Api,
   CoreV1Api,
   CustomObjectsApi,
   KubeConfig,
   PatchUtils,
   V1ConfigMap,
+  V1Job,
   Watch,
 } from '@kubernetes/client-node';
 import * as fs from 'fs';
-import { CreateQ3ServerDto } from '../../q3-server/dto/create-q3-server.dto';
+import { CreateQ3ServerDto } from '../../api/q3-server/dto/create-q3-server.dto';
 import { kubeQ3apiDefaultServer } from './templates/kube-q3api-default.server';
 import { q3ServerCrDefinitionManifest } from './templates/server-q3-cr.manifest';
 import * as process from 'process';
 import { API_VERSION } from '../../const';
+import { V1PersistentVolumeClaim } from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeClaim';
 
 @Injectable()
 export class KubeService {
@@ -21,8 +24,9 @@ export class KubeService {
   k8sApi: CoreV1Api;
   q3K8sApi: CustomObjectsApi;
   k8sAppsApi: AppsV1Api;
+  k8sBatchApi: BatchV1Api;
 
-  namespace = process.env.NAMESPACE || 'q3-operator';
+  namespace = process.env.NAMESPACE || 'quake3-system';
   kubeLogger = new Logger();
   watch = new Watch(this.kc);
   CR_NAME = 'servers.q3.magesgate.com';
@@ -33,6 +37,7 @@ export class KubeService {
     this.k8sApi = this.kc.makeApiClient(CoreV1Api);
     this.q3K8sApi = this.kc.makeApiClient(CustomObjectsApi);
     this.k8sAppsApi = this.kc.makeApiClient(AppsV1Api);
+    this.k8sBatchApi = this.kc.makeApiClient(BatchV1Api);
 
     const currentNamespace = this.getNamespaceName();
     if (currentNamespace) this.namespace = currentNamespace;
@@ -76,6 +81,7 @@ export class KubeService {
       // funzione di callback per gli errori
       (err) => {
         console.error("Errore durante l'osservazione delle modifiche: ", err);
+        this.createQ3CustomGroup();
       },
     );
   }
@@ -85,6 +91,71 @@ export class KubeService {
       this.namespace,
       deployment,
     );
+  }
+
+  async getPvc(name: string) {
+    let res: V1PersistentVolumeClaim | null = null;
+    try {
+      res = (
+        await this.k8sApi.readNamespacedPersistentVolumeClaim(
+          name,
+          this.namespace,
+        )
+      ).body;
+    } catch (e) {}
+    return res;
+  }
+
+  async createPvc(pvc: V1PersistentVolumeClaim) {
+    let res: V1PersistentVolumeClaim | null = null;
+    try {
+      res = (
+        await this.k8sApi.createNamespacedPersistentVolumeClaim(
+          this.namespace,
+          pvc,
+        )
+      ).body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async createJob(job: V1Job) {
+    let res: V1PersistentVolumeClaim | null = null;
+    try {
+      res = (await this.k8sBatchApi.createNamespacedJob(this.namespace, job))
+        .body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async waitForJobDone(jobName: string) {
+    const timeout = 5000;
+    const TenMinsInMilliSec = 10 * 60 * 1000;
+    for (let i = 0; i < TenMinsInMilliSec / timeout; i++) {
+      let job: V1Job;
+      try {
+        job = (
+          await this.k8sBatchApi.readNamespacedJobStatus(
+            jobName,
+            this.namespace,
+          )
+        ).body;
+      } catch (e) {
+        console.error(e?.body?.message || e?.message);
+
+        continue;
+      }
+
+      if (job.status.succeeded === 1) return true;
+      if (job.status.failed > 0) return false;
+      await new Promise((r) => setTimeout(r, timeout));
+    }
   }
 
   async deleteQ3Deployment(name: string) {

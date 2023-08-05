@@ -11,10 +11,10 @@ import { Q3ServerService } from './q3-server.service';
 import { CreateQ3ServerDto } from './dto/create-q3-server.dto';
 import { UpdateQ3ServerDto } from './dto/update-q3-server.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { KubeService } from '../kube-module/kube/kube.service';
+import { KubeService } from '../../kube-module/kube/kube.service';
 import * as process from 'process';
 
-@Controller('q3-server')
+@Controller()
 @ApiTags('Q3 Server')
 export class Q3ServerController {
   constructor(

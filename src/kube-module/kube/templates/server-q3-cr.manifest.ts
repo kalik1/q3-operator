@@ -1,4 +1,5 @@
 import { API_VERSION } from '../../../const';
+import { Mods } from './game-modes.enums';
 
 function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
   return {
@@ -24,6 +25,12 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
                     q3: {
                       type: 'object',
                       properties: {
+                        mod: {
+                          type: 'string',
+                          description: 'Game Mods',
+                          default: Mods.Base,
+                          enum: Object.values(Mods),
+                        },
                         map: {
                           type: 'string',
                           description: 'Map Name',
@@ -36,14 +43,14 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
                           description: 'Map Pool',
                         },
                       },
-                      required: ['map'],
+                      required: ['map', 'mod'],
                     },
                     network: {
                       type: 'object',
                       properties: {
                         nodeport: {
                           type: 'string',
-                          description: 'Map Name',
+                          description: 'NetworkType',
                         },
                       },
                     },
