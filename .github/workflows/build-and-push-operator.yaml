@@ -4,7 +4,7 @@ name: Build & Push Operator
 # release). This isn't dependant on the tests passing or the linter being happy.
 on:
   push:
-    branches: [main]
+    branches: [master]
     tags:
       - "v*.*.*"
 
