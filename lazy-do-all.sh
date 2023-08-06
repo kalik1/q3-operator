@@ -22,6 +22,9 @@ execute_command() {
 echo "🧹 Cleaning up kind. Let's slice it up!"
 execute_command "pnpm run cleanup:kind"
 
+echo "🏩 We Need some place...."
+execute_command "pnpm run start:kind:namespace"
+
 echo "🚀 Deploying the dashboard. Cutting edge technology!"
 execute_command "pnpm run k8s:deploy:dashboard"
 
