@@ -1,5 +1,5 @@
 name: GitHub Release
-
+#https://github.com/JamesLaverack/kubernetes-minecraft-operator/tree/v0.3.1
 on:
   push:
     tags:
@@ -20,7 +20,7 @@ jobs:
       - name: Set Release Image
         run: cd config/default && kustomize edit set image ghcr.io/kalik1/q3-operator:${GITHUB_REF_NAME}
       - name: Build Kubernetes YAML
-        run: kustomize build config/default > operator.yaml
+        run: kustomize build deploy/operator > operator.yaml
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
