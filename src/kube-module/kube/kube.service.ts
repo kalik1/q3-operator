@@ -26,7 +26,7 @@ export class KubeService {
   k8sAppsApi: AppsV1Api;
   k8sBatchApi: BatchV1Api;
 
-  namespace = process.env.NAMESPACE || 'quake3-system';
+  namespace = process.env.NAMESPACE || 'quake3-operator-system';
   kubeLogger = new Logger();
   watch = new Watch(this.kc);
   CR_NAME = 'servers.q3.magesgate.com';

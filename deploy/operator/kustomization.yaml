@@ -1,12 +1,12 @@
 # Adds namespace to all resources.
-namespace: q3-operator-system
+namespace: quake3-operator-system
 
 # Value of this field is prepended to the
 # names of all resources, e.g. a deployment named
 # "wordpress" becomes "alices-wordpress".
 # Note that it should also match with the prefix (text before '-') of the namespace
 # field above.
-namePrefix: q3-operator-
+#namePrefix: q3-operator-
 
 # Labels to add to all resources and selectors.
 #commonLabels:
@@ -16,7 +16,7 @@ resources:
   - deplyment.yaml
   - metrics.yaml
   - namespace.yaml
- # - rbac.yaml
+  - rbac.yaml
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
 # crd/kustomization.yaml
 #- ../webhook

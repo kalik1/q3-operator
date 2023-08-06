@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: q3-operator
-  namespace: quake3-system
+  namespace: quake3-operator-system
   labels:
     operator: q3-operator
 spec:
