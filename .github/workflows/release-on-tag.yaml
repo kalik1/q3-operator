@@ -18,7 +18,7 @@ jobs:
         with:
           kustomize-version: v4.5.1
       - name: Set Release Image
-        run: cd config/default && kustomize edit set image ghcr.io/kalik1/q3-operator:${GITHUB_REF_NAME}
+        run: cd deploy/operator && kustomize edit set image ghcr.io/kalik1/q3-operator:${GITHUB_REF_NAME}
       - name: Build Kubernetes YAML
         run: kustomize build deploy/operator > operator.yaml
       - name: Release
