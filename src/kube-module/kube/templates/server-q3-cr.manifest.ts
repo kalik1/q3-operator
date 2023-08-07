@@ -1,22 +1,30 @@
 import { API_VERSION } from '../../../const';
 import { Mods } from './game-modes.enums';
 
-function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
+function q3ServerCrDefinitionManifest() {
   return {
     apiVersion: 'apiextensions.k8s.io/v1',
     kind: 'CustomResourceDefinition',
     metadata: {
-      name: data.name,
+      name: 'servers.q3.magesgate.com',
     },
     spec: {
-      group: data.group,
+      group: 'q3.magesgate.com',
       versions: [
         {
+          additionalPrinterColumns: [
+            {
+              jsonPath: '.spec.q3.mod',
+              name: 'Mod',
+              type: 'string',
+            },
+          ],
           name: API_VERSION,
           served: true,
           storage: true,
           schema: {
             openAPIV3Schema: {
+              description: 'Schema for the Quake3 Servers API',
               type: 'object',
               properties: {
                 spec: {
@@ -28,8 +36,7 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
                         mod: {
                           type: 'string',
                           description: 'Game Mods',
-                          default: Mods.Base,
-                          enum: Object.values(Mods),
+                          default: 'base',
                         },
                         map: {
                           type: 'string',
@@ -45,14 +52,9 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
                       },
                       required: ['map', 'mod'],
                     },
-                    network: {
-                      type: 'object',
-                      properties: {
-                        nodeport: {
-                          type: 'string',
-                          description: 'NetworkType',
-                        },
-                      },
+                    externalIp: {
+                      type: 'string',
+                      description: 'Server Exposed IP',
                     },
                   },
                 },
@@ -92,4 +94,6 @@ function q3ServerCrDefinitionManifest(data: { name: string; group: string }) {
     },
   };
 }
+console.log(JSON.stringify(q3ServerCrDefinitionManifest()));
+
 export { q3ServerCrDefinitionManifest };

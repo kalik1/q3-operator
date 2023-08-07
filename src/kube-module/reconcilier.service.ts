@@ -180,7 +180,7 @@ export class ReconcilierService {
     const baseQ3Deplyment = baseQ3ServerDeployment(deploymentName, {
       confMapName,
     });
-    const baseQ3Service = baseQ3ServerService(serviceAppName, port);
+    const baseQ3Service = baseQ3ServerService(serviceAppName, port, port);
     let baseQ3ServerConfig = baserServerConfig;
 
     const confMap = await this.kubeService.getConfigMap(confMapName);

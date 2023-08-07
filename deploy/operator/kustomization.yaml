@@ -13,10 +13,11 @@ namespace: quake3-operator-system
 #  someName: someValue
 
 resources:
-  - deplyment.yaml
+  - deployment.yaml
   - metrics.yaml
   - namespace.yaml
   - rbac.yaml
+  - crd/server-q3-operator.crd.yaml
 # [WEBHOOK] To enable webhook, uncomment all the sections with [WEBHOOK] prefix including the one in
 # crd/kustomization.yaml
 #- ../webhook

@@ -1,4 +1,4 @@
-function baseQ3ServerService(name: string, port: number) {
+function baseQ3ServerService(name: string, port: number, nodePort?: number) {
   return {
     apiVersion: 'v1',
     kind: 'Service',
@@ -13,7 +13,7 @@ function baseQ3ServerService(name: string, port: number) {
       ports: [
         {
           protocol: 'UDP',
-          nodePort: port,
+          nodePort: nodePort,
           port: port,
           targetPort: 27960,
         },

@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "start:kind": "kind create cluster --config=kind-config.yaml --name=q3",
-    "start:kind:namespace": "kubectl create ns quake3-operator-system",
+    "start:kind:namespace": "kubectl create ns quake3-operator-system || kubectl apply -f deploy/operator/crd/server-q3-operator.crd.yaml",
     "cleanup:kind": "pnpm stop:kind && pnpm run start:kind",
     "cleanup:kind:dev": "pnpm run cleanup:kind && pnpm run start:kind:namespace && pnpm run start:dev",
     "k8s:deploy:dashboard": "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml",

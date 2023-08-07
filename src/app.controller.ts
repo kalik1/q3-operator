@@ -12,4 +12,9 @@ export class AppController {
   getHello(): void {
     return;
   }
+
+  @Get('/healthz')
+  getHealthz(): string {
+    return 'Ok';
+  }
 }

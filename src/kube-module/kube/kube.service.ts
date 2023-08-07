@@ -268,16 +268,13 @@ export class KubeService {
   }
 
   async init() {
-    await this.createQ3CustomGroup();
+    // await this.createQ3CustomGroup();
     this.initedCr = true;
   }
 
   async createQ3CustomGroup() {
     try {
-      const customResourceDefinitionManifest = q3ServerCrDefinitionManifest({
-        name: this.CR_NAME,
-        group: this.CR_GROUP,
-      });
+      const customResourceDefinitionManifest = q3ServerCrDefinitionManifest();
       const q3customGroup = await this.getQ3customGroup();
       if (!q3customGroup) {
         await this.q3K8sApi.createClusterCustomObject(
