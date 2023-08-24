@@ -1,0 +1,11 @@
+apiVersion: q3.magesgate.com/v1alpha
+kind: Mod
+metadata:
+  name: base
+  namespace: quake3-operator-system
+spec:
+  datapacks:
+    - name: pak0
+      fileName: pak0.pk3
+      destPath: baseq3
+      uri: https://raw.githubusercontent.com/nrempel/q3-server/master/baseq3/pak0.pk3

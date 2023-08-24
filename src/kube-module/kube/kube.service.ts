@@ -8,6 +8,11 @@ import {
   PatchUtils,
   V1ConfigMap,
   V1Job,
+  V1JobList,
+  V1Pod,
+  V1PodList,
+  V1PodSpec,
+  V1Status,
   Watch,
 } from '@kubernetes/client-node';
 import * as fs from 'fs';
@@ -17,6 +22,7 @@ import { q3ServerCrDefinitionManifest } from './templates/server-q3-cr.manifest'
 import * as process from 'process';
 import { API_VERSION } from '../../const';
 import { V1PersistentVolumeClaim } from '@kubernetes/client-node/dist/gen/model/v1PersistentVolumeClaim';
+import { Q3mod } from '../../api/q3mod/entities/q3mod.entity';
 
 @Injectable()
 export class KubeService {
@@ -29,7 +35,6 @@ export class KubeService {
   namespace = process.env.NAMESPACE || 'quake3-operator-system';
   kubeLogger = new Logger();
   watch = new Watch(this.kc);
-  CR_NAME = 'servers.q3.magesgate.com';
   CR_GROUP = 'q3.magesgate.com';
   initedCr = false;
   constructor() {
@@ -45,20 +50,26 @@ export class KubeService {
     this.init();
   }
 
-  setStatus(name: string, patch: Record<string, any>) {
+  async setStatus(
+    name: string,
+    resourcePlural: string,
+    patch: Record<string, any>[],
+  ) {
     try {
-      return this.q3K8sApi.patchNamespacedCustomObjectStatus(
-        this.CR_GROUP,
-        API_VERSION,
-        this.namespace,
-        'servers',
-        name,
-        patch,
-        undefined,
-        undefined,
-        undefined,
-        { headers: { 'Content-type': PatchUtils.PATCH_FORMAT_JSON_PATCH } },
-      );
+      return (
+        await this.q3K8sApi.patchNamespacedCustomObjectStatus(
+          this.CR_GROUP,
+          API_VERSION,
+          this.namespace,
+          resourcePlural,
+          name,
+          patch,
+          undefined,
+          undefined,
+          undefined,
+          { headers: { 'Content-type': PatchUtils.PATCH_FORMAT_JSON_PATCH } },
+        )
+      ).body;
     } catch (e) {
       console.error(e.body);
       return null;
@@ -67,11 +78,12 @@ export class KubeService {
 
   async watcher(
     thisArg: any,
+    resource: string,
     cb: (type: string, obj: Record<string, any>) => void,
   ) {
     while (!this.initedCr) await new Promise((r) => setTimeout(r, 1000));
     this.watch.watch(
-      `/apis/${this.CR_GROUP}/${API_VERSION}/namespaces/${this.namespace}/servers`,
+      `/apis/${this.CR_GROUP}/${API_VERSION}/namespaces/${this.namespace}/${resource}`,
       {},
       // funzione di callback per le modifiche
       (type, obj) => {
@@ -80,8 +92,11 @@ export class KubeService {
       },
       // funzione di callback per gli errori
       (err) => {
-        console.error("Errore durante l'osservazione delle modifiche: ", err);
-        this.createQ3CustomGroup();
+        console.error(
+          `Errore durante l'osservazione delle modifiche di ${resource}: `,
+          err,
+        );
+        // this.createQ3CustomGroup();
       },
     );
   }
@@ -106,6 +121,22 @@ export class KubeService {
     return res;
   }
 
+  async removePvc(name: string) {
+    let res: V1PersistentVolumeClaim | null = null;
+    try {
+      res = (
+        await this.k8sApi.deletePersistentVolume(
+          name,
+          this.namespace,
+          undefined,
+          10,
+          true,
+        )
+      ).body;
+    } catch (e) {}
+    return res;
+  }
+
   async createPvc(pvc: V1PersistentVolumeClaim) {
     let res: V1PersistentVolumeClaim | null = null;
     try {
@@ -116,7 +147,7 @@ export class KubeService {
         )
       ).body;
     } catch (e) {
-      console.error(e);
+      // console.error(e);
       throw new Error(e?.body?.message || e?.message);
     }
     return res;
@@ -134,7 +165,70 @@ export class KubeService {
     return res;
   }
 
-  async waitForJobDone(jobName: string) {
+  async getJobByLabel(name: string) {
+    let res: V1JobList;
+    try {
+      res = (
+        await this.k8sBatchApi.listNamespacedJob(
+          this.namespace,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          `packName=${name}`,
+        )
+      ).body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async getPodByJobName(name: string) {
+    let res: V1PodList;
+    try {
+      res = (
+        await this.k8sApi.listNamespacedPod(
+          this.namespace,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          ` batch.kubernetes.io/job-name=${name}`,
+        )
+      ).body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async deleteJob(name: string) {
+    let res: V1Status;
+    try {
+      res = (await this.k8sBatchApi.deleteNamespacedJob(name, this.namespace))
+        .body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async deletePod(name: string) {
+    let res: V1Pod;
+    try {
+      res = (await this.k8sApi.deleteNamespacedPod(name, this.namespace)).body;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e?.body?.message || e?.message);
+    }
+    return res;
+  }
+
+  async waitForK8sJobDone(jobName: string) {
     const timeout = 5000;
     const TenMinsInMilliSec = 10 * 60 * 1000;
     for (let i = 0; i < TenMinsInMilliSec / timeout; i++) {
@@ -172,7 +266,6 @@ export class KubeService {
   async deleteQ3Service(name: string) {
     return await this.k8sApi.deleteNamespacedService(name, this.namespace);
   }
-
   async getServers(): Promise<Record<string, any>> {
     const servers = await this.q3K8sApi.listNamespacedCustomObject(
       this.CR_GROUP,
@@ -182,6 +275,31 @@ export class KubeService {
     );
     return servers.body;
   }
+  async getMods(): Promise<Record<string, any>> {
+    const mods = (
+      await this.q3K8sApi.listNamespacedCustomObject(
+        this.CR_GROUP,
+        API_VERSION,
+        this.namespace,
+        'mods',
+      )
+    ).body as Record<string, any>;
+    return mods.items as Q3mod;
+  }
+
+  async getMod(name: string): Promise<Q3mod> {
+    const mod = (
+      await this.q3K8sApi.getNamespacedCustomObject(
+        this.CR_GROUP,
+        API_VERSION,
+        this.namespace,
+        'mods',
+        name,
+      )
+    ).body as Q3mod;
+    return mod;
+  }
+
   async getServer(name: string): Promise<Record<string, any>> {
     const server = await this.q3K8sApi.getNamespacedCustomObject(
       this.CR_GROUP,
@@ -193,7 +311,6 @@ export class KubeService {
     //console.log(server);
     return server.body;
   }
-
   async createServer(server: CreateQ3ServerDto) {
     const serverResource = kubeQ3apiDefaultServer;
     serverResource.metadata.name = server.name;
@@ -215,7 +332,6 @@ export class KubeService {
 
     return newServer.body;
   }
-
   async deleteServer(serverName: string) {
     let oldServer;
 
@@ -234,7 +350,6 @@ export class KubeService {
 
     return oldServer.body;
   }
-
   async getNamespacePods() {
     return (await this.k8sApi.listNamespacedPod(this.namespace)).body;
   }
@@ -286,7 +401,6 @@ export class KubeService {
         return (await this.getQ3customGroup()).body;
       }
     } catch (e) {
-      console.error('qui');
       console.error(e.body, e.stack);
     }
   }
@@ -372,7 +486,6 @@ export class KubeService {
       return null;
     }
   }
-
   async getDeployment(deploymentName: string): Promise<V1ConfigMap | null> {
     // Leggi il contenuto del file
     try {

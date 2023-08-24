@@ -6,13 +6,16 @@ type modPackType = typeof ModPacks;
 function baseQ3ServerPakDownloadJob(
   name: string,
   volumeName: string,
-  modPack: modPackType[Mods][number],
+  data: { name: string; fileName: string; uri: string },
 ): V1Job {
   return {
     apiVersion: 'batch/v1',
     kind: 'Job',
     metadata: {
       name: name,
+      labels: {
+        packName: data.name,
+      },
     },
     spec: {
       template: {
@@ -20,11 +23,19 @@ function baseQ3ServerPakDownloadJob(
           containers: [
             {
               name: 'download-container',
-              image: 'appropriate/curl', // an image that includes curl
+              image: 'alpine', // an image that includes curl
               command: [
                 'sh',
                 '-c',
-                `curl -L -o /data/${modPack.fileName} ${modPack.uri}`,
+                `apk --no-cache add curl tar gzip && 
+                curl -L -o /data/${data.fileName} ${data.uri}  &&
+                case "/data/${data.fileName}" in
+                  *.zip) unzip /data/${data.fileName} -d /data ;;
+                  *.tar) tar -xf /data/${data.fileName} -C /data ;;
+                  *.tar.gz) tar -zxf /data/${data.fileName} -C /data ;;
+                  # Add more cases here if needed
+                  *) echo "File not Compressed, leaving as is" ;;
+                esac`,
               ],
               volumeMounts: [
                 {

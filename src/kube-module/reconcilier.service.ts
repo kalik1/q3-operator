@@ -4,14 +4,13 @@ import { Cron } from '@nestjs/schedule';
 import { baseQ3ServerDeployment } from './kube/templates/base-q3-server.deployment';
 import { baseQ3ServerService } from './kube/templates/base-q3-server.service';
 import * as process from 'process';
-import * as Q3RCon from 'quake3-rcon';
 import { baserServerConfig } from './kube/templates/server.cfg';
 import { Q3Server } from '../api/q3-server/entities/q3-server.entity';
-import { ModPacks } from './kube/templates/game-modes.enums';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { baseQ3ServerPvc } from './kube/templates/base-q3-server.pvc';
-import { baseQ3ServerPakDownloadJob } from './kube/templates/base-q3-server-pak-download.job';
+import { Q3ServerRcon } from './utils/q3-server-rcon.class';
+import * as jsonpatch from 'fast-json-patch';
+import { V1Deployment, V1Service } from '@kubernetes/client-node';
+import { Q3mod } from '../api/q3mod/entities/q3mod.entity';
 
 @Injectable()
 export class ReconcilierService {
@@ -20,7 +19,9 @@ export class ReconcilierService {
     private readonly kubeService: KubeService,
     private readonly httpService: HttpService,
   ) {
-    this.kubeService.watcher(this, this.watcher).catch(console.error);
+    this.kubeService
+      .watcher(this, 'servers', this.watcher)
+      .catch(console.error);
     //this.getServersInfo();
   }
   runningStates = ['Started', 'Detected', 'Deployed'];
@@ -37,17 +38,24 @@ export class ReconcilierService {
           'quake3-server-' + server.metadata.name,
         );
         const service = services[0];
-        if (!service)
+        if (!service) {
           console.error(
             `service for ${'quake3-server-' + server.metadata.name} not found`,
           );
-        return;
+          return;
+        }
+
+        // const service = services.find((s) =>
+        //   s.spec.ports.find((port) => port.port),
+        // );
+        const currentPort = service.spec.ports;
+        //console.log(currentPort);
         const confMap = await this.kubeService.getConfigMap(
           'quake3-server-' + server.metadata.name,
         );
         const ports = service.spec.ports;
-        ports.forEach((p) => {
-          const q3rcon = new Q3RCon({
+        for (const p of ports) {
+          const q3rcon = new Q3ServerRcon({
             address: '127.0.0.1',
             port: p.port, // optional
             password: this.getConfigValue(
@@ -57,15 +65,20 @@ export class ReconcilierService {
             //debug: true, // optional
           });
           try {
-            q3rcon.send('serverinfo', (res) => {
-              console.log(res);
-            });
+            const serverInfo = await q3rcon.serverInfo();
+            // const updates = this.generateUpdates(server.status, {
+            //   serverStatus: serverInfo,
+            //   state: 'Running',
+            // });
+            // // console.log(updates);
+            // await this.updateStatusRaw(server, updates);
+            await this.updateStatus(server, serverInfo, '/status/serverStatus');
           } catch (e) {
             console.error(`rcon error: ${e}`);
           }
-        });
+        }
       });
-    console.log(servers.map((s) => s.status));
+    //console.log(servers.map((s) => s.status));
   }
   async watcher(type: string, obj: Q3Server) {
     const name = obj.metadata.name;
@@ -121,7 +134,7 @@ export class ReconcilierService {
       }
       try {
         const res = await this.kubeService.deleteConfigMap(confMapName);
-        console.log(console.log(res, `ConfigMap eliminato con successo: ${1}`));
+        console.log(res, `ConfigMap eliminato con successo: ${1}`);
       } catch (e) {
         console.error("Errore durante l'eliminazione della configMap: ", e);
       }
@@ -139,7 +152,6 @@ export class ReconcilierService {
     const portMax = parseInt(process.env.MAX_NODEPORT || '32767');
 
     const port = await this.kubeService.getFreeNodePort(portMin, portMax);
-    //console.log(port);
     if (!port) {
       const msg = `Cant find a valid port in range ${portMin}, ${portMax}`;
       this.logger.error(msg);
@@ -148,39 +160,34 @@ export class ReconcilierService {
       );
     }
 
-    const mod = obj.spec.q3.mod;
-    await Promise.all(
-      ModPacks[mod].map(async (mp) => {
-        const mapPvc = await this.kubeService.getPvc(mp.name);
-        if (!mapPvc) {
-          const a = await firstValueFrom(this.httpService.head(mp.uri));
-          const pvcMinSizeMib = Math.ceil(
-            parseInt(
-              a.headers['content-length'] ||
-                a.headers['Content-Length'] ||
-                '10000000',
-            ) /
-              1024 /
-              1024 +
-              10,
-          );
-          console.log(pvcMinSizeMib);
-          await this.kubeService.createPvc(
-            baseQ3ServerPvc(mp.name, pvcMinSizeMib),
-          );
-          const jobName = 'download-' + mp.name + '-' + Date.now() + '-job';
-          await this.kubeService.createJob(
-            baseQ3ServerPakDownloadJob(jobName, mp.name, mp),
-          );
-          await this.kubeService.waitForJobDone(jobName);
-        }
-      }),
-    );
+    const modData: Q3mod = await this.kubeService.getMod(obj.spec.q3.mod);
 
-    const baseQ3Deplyment = baseQ3ServerDeployment(deploymentName, {
-      confMapName,
-    });
-    const baseQ3Service = baseQ3ServerService(serviceAppName, port, port);
+    if (!modData) {
+      console.error(`mod ${obj.spec.q3.mod} not found.`);
+      return;
+    }
+
+    const baseQ3Deplyment: V1Deployment = baseQ3ServerDeployment(
+      deploymentName,
+      {
+        confMapName,
+      },
+      modData,
+    );
+    const baseQ3Service: V1Service = baseQ3ServerService(serviceAppName, port);
+    if (obj.spec.service.type) baseQ3Service.spec.type = obj.spec.service.type;
+    if (obj.spec.service.externaIp)
+      baseQ3Service.spec.externalIPs = [obj.spec.service.externaIp];
+    if (obj.spec.service.nodePort) {
+      const q3portIdx = baseQ3Service.spec.ports.findIndex(
+        (port) => port.port === 27960,
+      );
+      if (q3portIdx === -1) {
+        console.error("Can't find port for nodeport!");
+      }
+      baseQ3Service.spec.ports[q3portIdx].nodePort = obj.spec.service.nodePort;
+    }
+
     let baseQ3ServerConfig = baserServerConfig;
 
     const confMap = await this.kubeService.getConfigMap(confMapName);
@@ -206,6 +213,10 @@ export class ReconcilierService {
       this.kubeService
         .createQ3Deployment(baseQ3Deplyment)
         .catch((e) => console.error(e.body));
+      await this.updateStatus(obj, {
+        state: 'Started',
+        message: 'Q3 Server Running',
+      });
     }
     const service = await this.kubeService.getServicesWithAppLabel(
       serviceAppName,
@@ -213,15 +224,11 @@ export class ReconcilierService {
     if (service.length === 0) {
       this.kubeService.createQ3Service(baseQ3Service).catch(console.error);
     }
-    await this.updateStatus(obj, {
-      state: 'Started',
-      message: 'Q3 Server Running',
-    });
   }
 
   private async CreateNewStatus(obj: Record<string, any>) {
     try {
-      const e = await this.kubeService.setStatus(obj.metadata.name, [
+      const e = await this.kubeService.setStatus(obj.metadata.name, 'servers', [
         {
           op: 'add',
           path: '/status',
@@ -239,7 +246,7 @@ export class ReconcilierService {
 
   private async SetDetectedNewStatus(obj: Record<string, any>) {
     try {
-      const e = await this.kubeService.setStatus(obj.metadata.name, [
+      const e = await this.kubeService.setStatus(obj.metadata.name, 'servers', [
         {
           op: 'replace',
           path: '/status',
@@ -253,26 +260,56 @@ export class ReconcilierService {
       console.error(e);
     }
   }
+
+  private generateUpdates(
+    originalDoc: Record<string, any>,
+    patch: Record<string, any>,
+    removeNotExisting = false,
+  ) {
+    const fullPatch = jsonpatch.compare(
+      { status: originalDoc },
+      { status: patch },
+    );
+    if (!removeNotExisting)
+      return fullPatch.filter((operation) => operation.op !== 'remove');
+    return fullPatch;
+  }
+
   private async updateStatus(
     obj: Record<string, any>,
-    data: { state: string; message: string },
+    data: Record<string, any>,
+    path = '/status',
   ) {
     try {
-      const e = await this.kubeService.setStatus(obj.metadata.name, [
+      const e = await this.kubeService.setStatus(obj.metadata.name, 'servers', [
         {
-          op: 'replace',
-          path: '/status',
-          value: {
-            state: data.state, // sostituisci con il tuo stato
-            message: data.message, // sostituisci con il tuo messaggio
-          },
+          op: 'add',
+          path: path,
+          value: data,
         },
       ]);
-      //console.log(e);
+      // console.log(e.body);
     } catch (e) {
       console.error(e);
     }
   }
+
+  private async updateStatusRaw(
+    obj: Record<string, any>,
+    patch: jsonpatch.Operation[],
+  ) {
+    try {
+      const e = await this.kubeService.setStatus(
+        obj.metadata.name,
+        'servers',
+        patch,
+      );
+      console.log(e);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   private replaceConfigValue(
     configString: string,
     key: string,
@@ -281,8 +318,7 @@ export class ReconcilierService {
     // Se newValue è undefined, elimina l'intera riga
     if (newValue === undefined) {
       const regex = new RegExp(`(^${key} .*\n)`, 'gm');
-      const newConfigString = configString.replace(regex, '');
-      return newConfigString;
+      return configString.replace(regex, '');
     }
 
     // Se newValue è null, impostare il valore a ''

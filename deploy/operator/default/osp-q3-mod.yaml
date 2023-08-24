@@ -1,0 +1,21 @@
+apiVersion: q3.magesgate.com/v1alpha
+kind: Mod
+metadata:
+  name: osp-103a
+  namespace: quake3-operator-system
+spec:
+  args:
+    - "+set"
+    - "fs_game"
+    - "osp"
+  datapacks:
+    - name: pak0
+      fileName: pak0.pk3
+      destPath: baseq3
+      uri: https://raw.githubusercontent.com/nrempel/q3-server/master/baseq3/pak0.pk3
+    - name: osp-103a
+      fileName: osp-Quake3-1.03a_full.zip
+      isFolder: true
+      subPath: osp
+      destPath: 'osp'
+      uri: http://osp.dget.cc/orangesmoothie/downloads/osp-Quake3-1.03a_full.zip

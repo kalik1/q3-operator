@@ -40,9 +40,23 @@ spec:
                   required:
                     - map
                     - mod
-                externalIp:
-                  type: string
-                  description: Server Exposed IP
+                service:
+                  type: object
+                  properties:
+                    type:
+                      enum:
+                        - None
+                        - ClusterIP
+                        - NodePort
+                        - LoadBalancer
+                      type: string
+                      default: NodePort
+                    externalIp:
+                      type: string
+                      description: Server Exposed IP
+                  required:
+                    - type
+                  default: {type: "NodePort" }
             status:
               type: object
               properties:
@@ -53,6 +67,12 @@ spec:
                 players:
                   type: string
                   description: Players number
+                serverStatus:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Server Status
+                  default: {}
                 message:
                   type: string
                   description: Server Message

@@ -1,0 +1,9 @@
+apiVersion: q3.magesgate.com/v1alpha
+kind: Server
+metadata:
+  name: 'new-server'
+  namespace: quake3-operator-system
+spec:
+  q3:
+    map: "q3dm6"
+    mod: base
